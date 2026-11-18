@@ -1,0 +1,1093 @@
+Q1
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 1. Read dataset
+df = pd.read_csv("hospital.csv")
+
+# 2. Display dataset
+print(df.head())
+print(df.info())
+
+# 3. Check missing values
+print(df.isnull().sum())
+
+# Fill missing values
+df["Patient_ID"] = df["Patient_ID"].fillna("Unknown")
+df["Age"] = df["Age"].fillna(df["Age"].median())
+df["Payment_Mode"] = df["Payment_Mode"].fillna("Unknown")
+
+# 4. Remove duplicate records
+df = df.drop_duplicates()
+
+# 5. Correct inconsistent values
+df["Gender"] = df["Gender"].str.strip().str.title()
+df["City"] = df["City"].str.strip().str.title()
+df["Visit_Type"] = df["Visit_Type"].str.strip().str.title()
+df["Admission_Status"] = df["Admission_Status"].str.strip().str.title()
+
+# 6. Handle abnormal values
+df["Age"] = df["Age"].clip(0, 100)
+
+df["Length_of_Stay_Days"] = df["Length_of_Stay_Days"].clip(0, 365)
+
+df["Satisfaction_Score"] = df["Satisfaction_Score"].clip(1, 10)
+
+# 7. Correct billing
+df["Room_Charges"] = df["Room_Charges"].clip(lower=0)
+df["Total_Bill"] = df["Total_Bill"].clip(lower=0)
+df["Insurance_Coverage"] = df["Insurance_Coverage"].clip(lower=0)
+
+df["Net_Amount"] = (
+    df["Total_Bill"] - df["Insurance_Coverage"]
+).clip(lower=0)
+
+# 8. Create graphs
+plt.hist(df["Age"])
+plt.title("Patient Age Distribution")
+plt.xlabel("Age")
+plt.ylabel("Patients")
+plt.show()
+
+plt.boxplot(df["Total_Bill"])
+plt.title("Total Bill")
+plt.show()
+
+df["Gender"].value_counts().plot(kind="bar")
+plt.title("Gender Analysis")
+plt.show()
+
+# 9. Export cleaned data
+df.to_csv("hospital_cleaned.csv", index=False)
+
+print("Data Cleaning Completed!")
+
+
+Total Patients =
+DISTINCTCOUNT(Hospital[Patient_ID])
+
+Total Visits =
+COUNTROWS(Hospital)
+
+Total Treatment Cost =
+SUM(Hospital[Treatment_Cost])
+
+Total Bill Amount =
+SUM(Hospital[Total_Bill])
+
+Average Satisfaction =
+AVERAGE(Hospital[Satisfaction_Score])
+
+
+
+Q2
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 1. Read dataset
+df = pd.read_csv("banking.csv")
+
+# 2. Display data
+print(df.head())
+print(df.info())
+
+# 3. Handle missing values
+df["Customer_ID"] = df["Customer_ID"].fillna("Unknown")
+df["Annual_Income"] = df["Annual_Income"].fillna(df["Annual_Income"].median())
+df["Credit_Score"] = df["Credit_Score"].fillna(df["Credit_Score"].median())
+df["Transaction_Amount"] = df["Transaction_Amount"].fillna(0)
+
+# 4. Remove duplicates
+df = df.drop_duplicates()
+
+# 5. Correct inconsistent values
+df["Employment_Type"] = df["Employment_Type"].str.strip().str.title()
+df["Account_Type"] = df["Account_Type"].str.strip().str.title()
+df["Loan_Status"] = df["Loan_Status"].str.strip().str.title()
+df["Channel"] = df["Channel"].str.strip().str.title()
+
+# 6. Handle abnormal values
+df["Age"] = df["Age"].clip(18, 100)
+df["Credit_Score"] = df["Credit_Score"].clip(300, 900)
+df["Interest_Rate"] = df["Interest_Rate"].clip(0, 50)
+df["Tenure_Years"] = df["Tenure_Years"].clip(0, 50)
+
+# 7. Correct financial values
+df["Loan_Amount"] = df["Loan_Amount"].clip(lower=0)
+df["Collateral_Value"] = df["Collateral_Value"].clip(lower=0)
+df["Transaction_Amount"] = df["Transaction_Amount"].clip(lower=0)
+
+# Account balance can be negative, so do not automatically
+# remove negative balances.
+
+# 8. Create graphs
+plt.hist(df["Age"])
+plt.title("Customer Age Distribution")
+plt.show()
+
+plt.boxplot(df["Credit_Score"])
+plt.title("Credit Score Analysis")
+plt.show()
+
+df["Loan_Status"].value_counts().plot(kind="bar")
+plt.title("Loan Status")
+plt.show()
+
+# 9. Export data
+df.to_csv("banking_cleaned.csv", index=False)
+
+print("Banking Data Cleaning Completed!")
+
+
+
+Total Customers =
+DISTINCTCOUNT(Banking[Customer_ID])
+
+Total Loans =
+COUNTROWS(Banking)
+
+Total Loan Amount =
+SUM(Banking[Loan_Amount])
+
+Total Transaction Amount =
+SUM(Banking[Transaction_Amount])
+
+Average Credit Score =
+AVERAGE(Banking[Credit_Score])
+
+
+
+Q3
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 1. Read dataset
+df = pd.read_csv("food_delivery.csv")
+
+# 2. Display data
+print(df.head())
+print(df.info())
+
+# 3. Handle missing values
+df["App_Rating"] = df["App_Rating"].fillna(df["App_Rating"].median())
+
+df["Preferred_Cuisine"] = df["Preferred_Cuisine"].fillna("Unknown")
+
+df["Discount"] = df["Discount"].fillna(0)
+
+# 4. Remove duplicate orders
+df = df.drop_duplicates(subset=["Order_ID"])
+
+# 5. Convert date and time
+df["Order_Date"] = pd.to_datetime(df["Order_Date"], errors="coerce")
+
+df["Order_Time"] = pd.to_datetime(
+    df["Order_Time"], format="%H:%M:%S", errors="coerce"
+).dt.time
+
+# 6. Correct financial data
+df["Food_Amount"] = df["Food_Amount"].clip(lower=0)
+df["Delivery_Fee"] = df["Delivery_Fee"].clip(lower=0)
+df["Discount"] = df["Discount"].clip(lower=0)
+
+# Calculate final amount
+df["Final_Amount"] = (
+    df["Food_Amount"] + df["Delivery_Fee"] - df["Discount"]
+).clip(lower=0)
+
+# 7. Handle abnormal values
+df["Delivery_Time_Min"] = df["Delivery_Time_Min"].clip(0, 300)
+
+df["Delivery_Distance_KM"] = df["Delivery_Distance_KM"].clip(0, 100)
+
+df["Customer_Rating"] = df["Customer_Rating"].clip(1, 5)
+
+# 8. Create graphs
+plt.hist(df["Delivery_Time_Min"])
+plt.title("Delivery Time Analysis")
+plt.show()
+
+plt.boxplot(df["Food_Amount"])
+plt.title("Food Amount Analysis")
+plt.show()
+
+plt.hist(df["Customer_Rating"])
+plt.title("Customer Rating Analysis")
+plt.show()
+
+# 9. Export data
+df.to_csv("food_delivery_cleaned.csv", index=False)
+
+print("Food Delivery Data Cleaning Completed!")
+
+
+
+
+Total Orders =
+DISTINCTCOUNT(Food[Order_ID])
+
+Total Food Amount =
+SUM(Food[Food_Amount])
+
+Total Discount =
+SUM(Food[Discount])
+
+Average Delivery Time =
+AVERAGE(Food[Delivery_Time_Min])
+
+Average Customer Rating =
+AVERAGE(Food[Customer_Rating])
+
+
+Q3
+
+Total Orders =
+DISTINCTCOUNT(Food[Order_ID])
+
+Total Food Amount =
+SUM(Food[Food_Amount])
+
+Total Discount =
+SUM(Food[Discount])
+
+Average Delivery Time =
+AVERAGE(Food[Delivery_Time_Min])
+
+Average Customer Rating =
+AVERAGE(Food[Customer_Rating])
+
+
+
+Q4
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 1. Read dataset
+df = pd.read_csv("hotel.csv")
+
+# 2. Display data
+print(df.head())
+print(df.info())
+
+# 3. Correct categorical data
+df["Room_Type"] = df["Room_Type"].str.strip().str.title()
+
+df["Meal_Plan"] = df["Meal_Plan"].str.strip().str.title()
+
+df["Booking_Channel"] = df["Booking_Channel"].str.strip().str.title()
+
+df["Booking_Status"] = df["Booking_Status"].str.strip().str.title()
+
+df["Room_Status"] = df["Room_Status"].str.strip().str.title()
+
+df["Guest_Type"] = df["Guest_Type"].str.strip().str.title()
+
+# 4. Remove duplicate records
+df = df.drop_duplicates()
+
+# 5. Filter relevant bookings
+df = df[df["Booking_Status"].notna()]
+
+# 6. Check occupancy data
+df["Guests_Count"] = df["Guests_Count"].clip(lower=0)
+
+df["Room_Capacity"] = df["Room_Capacity"].clip(lower=1)
+
+df["Occupancy_Nights"] = df["Occupancy_Nights"].clip(lower=0)
+
+# Select records where guests do not exceed room capacity
+df = df[df["Guests_Count"] <= df["Room_Capacity"]]
+
+# 7. Correct financial data
+df["Room_Rate"] = df["Room_Rate"].clip(lower=0)
+
+df["Discount"] = df["Discount"].clip(lower=0)
+
+df["Gross_Amount"] = df["Gross_Amount"].clip(lower=0)
+
+df["Final_Amount"] = (
+    df["Gross_Amount"] - df["Discount"]
+).clip(lower=0)
+
+# 8. Create graphs
+plt.hist(df["Occupancy_Nights"])
+plt.title("Hotel Occupancy Analysis")
+plt.show()
+
+plt.boxplot(df["Room_Rate"])
+plt.title("Room Rate Analysis")
+plt.show()
+
+df["Room_Type"].value_counts().plot(kind="bar")
+plt.title("Room Type Analysis")
+plt.show()
+
+# 9. Export data
+df.to_csv("hotel_cleaned.csv", index=False)
+
+print("Hotel Data Cleaning Completed!")
+
+
+
+Total Bookings =
+COUNTROWS(Hotel)
+
+Total Guests =
+SUM(Hotel[Guests_Count])
+
+Total Revenue =
+SUM(Hotel[Final_Amount])
+
+Average Stay Duration =
+AVERAGE(Hotel[Occupancy_Nights])
+
+Average Guest Rating =
+AVERAGE(Hotel[Guest_Rating])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+scatter
+Height = [150, 160, 165, 170, 175, 180, 185]
+Weight = [50, 55, 60, 68, 72, 80, 85]
+plt.scatter(Height,Weight,color="blue",s=100,alpha=0.5,marker="D")
+plt.title("Scatter")
+plt.xlabel("Height")
+plt.ylabel("Weight")
+plt.grid(True)
+plt.show()
+
+
+
+pie
+Expenses = ["Rent", "Food", "Transport", "Entertainment", "Others"]
+Amount = [1200, 800, 300, 200, 500]
+
+explode = [0.1, 0, 0, 0, 0]
+
+plt.pie(Amount,labels=Expenses,colors=color,explode=explode,autopct="%1.1f%%",startangle=90)
+
+plt.title("Monthly Expenses")
+plt.axis("equal")
+
+plt.show()
+
+
+Line plot
+Days = [1,2,3,4,5]
+Stock_A = [120,122,121,125,127]
+Stock_B = [115,117,116,119,121]
+plt.plot(Days,Stock_A,linestyle="--",linewidth=2,marker="o",label="Stock-A")
+plt.plot(Days,Stock_B,linestyle="--",linewidth=2,marker="o",label="Stock-B")
+plt.title("Line plot")
+plt.xlabel("X-axis")
+plt.ylabel("Y-axis")
+plt.legend()
+plt.show
+
+
+
+Bar
+Products = ["P1", "P2", "P3"]
+Factory1 = [40, 30, 50]
+Factory2 = [30, 25, 35]
+
+
+plt.bar(Products, Factory1, label="Factory 1")
+plt.bar(Products, Factory2, bottom=Factory1, label="Factory 2")
+
+plt.xlabel("Products")
+plt.ylabel("Production")
+plt.title("Production Data by Factory")
+
+
+plt.legend()
+
+plt.show()
+
+
+
+
+ML
+ Linear Regression
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.metrics import mean_absolute_error, r2_score, mean_squared_e
+st_perf = pd.read_csv("student_performance_records.csv")
+st_perf.head()
+
+y = st_perf["final_exam_score"]
+X = st_perf.drop(columns=["final_exam_score"])
+subset_features = ["study_hours_per_week", "attendance_percentage", "inte
+X_subset = st_perf[subset_features]
+X_train_all, X_test_all, y_train, y_test = train_test_split(X, y, test_si
+X_train, X_test, _, _ = train_test_split(X_subset, y, test_size=0.05, ran
+#Train Model 1
+model_all = LinearRegression()
+model_all.fit(X_train_all, y_train)
+pred_all = model_all.predict(X_test_all)
+#train Model 2
+model = LinearRegression()
+model.fit(X_train, y_train)
+pred = model.predict(X_test)
+def evaluate_matrics(y_test, y_pred):
+    ma = mean_absolute_error(y_test, y_pred)
+    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+    r2 = r2_score(y_test, y_pred)
+    return ma, rmse, r2
+ma_all, rmse_all, r2_all = evaluate_matrics(y_test, pred_all)
+print(f"All Features -> MAE: {ma_all:.2f}, RMSE: {rmse_all:.2f}, R2: {r2_
+All Features -> MAE: 4.39, RMSE: 4.95, R2: 0.77
+ma, rmse, r2  = evaluate_matrics(y_test, pred)
+print(f"# Features -> MAE: {ma:.2f}, RMSE: {rmse_all:.2f}, R2: {r2:.2f}")
+# Features -> MAE: 5.01, RMSE: 4.95, R2: 0.70
+
+
+
+house = pd.read_csv("house_selling_prices.csv")
+house.head()
+
+y = house["price_lakhs"]
+X = house.drop(columns=["price_lakhs"])
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, 
+house_model = LinearRegression()
+house_model.fit(X_train, y_train)
+house_pred = house_model.predict(X_test)
+ma, rmse, r2  = evaluate_matrics(y_test, house_pred)
+print(f"# Features -> MAE: {ma:.2f}, RMSE: {rmse:.2f}, R2: {r2:.2f}")
+# Features -> MAE: 14.85, RMSE: 19.88, R2: 0.95
+# Removing the important Feature:
+X_subset = house.drop(columns=["price_lakhs", "area_sqft"])
+X_train_s, X_test_s,_, _ = train_test_split(X_subset, y, test_size=0.2, r
+house_model_subset = LinearRegression()
+house_model_subset.fit(X_train_s, y_train)
+house_pred_subset = house_model_subset.predict(X_test_s)
+ma, rmse, r2  = evaluate_matrics(y_test, house_pred_subset)
+print(f"# Features -> MAE: {ma:.2f}, RMSE: {rmse:.2f}, R2: {r2:.2f}")
+
+ Logistic Regression — Student Pass/Fail
+
+
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    confusion_matrix,
+    classification_report
+)
+st_pf = pd.read_csv("student_pass_fail_records.csv")
+st_pf.head()
+X = st_pf.drop(columns=["pass"])
+y = st_pf["pass"]
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.20,
+    random_state=42,
+    stratify=y
+)
+print("Training samples:", X_train.shape[0])
+print("Testing samples:", X_test.shape[0])
+Training samples: 440
+Testing samples: 110
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+model = LogisticRegression(random_state=42)
+model.fit(X_train_scaled, y_train)
+y_prob = model.predict_proba(X_test_scaled)[:, 1]
+threshold_50 = 0.50
+y_pred_50 = (y_prob >= threshold_50).astype(int)
+accuracy_50 = accuracy_score(y_test, y_pred_50)
+precision_50 = precision_score(y_test, y_pred_50)
+recall_50 = recall_score(y_test, y_pred_50)
+f1_50 = f1_score(y_test, y_pred_50)
+cm_50 = confusion_matrix(y_test, y_pred_50)
+print("Results at Threshold = 0.50")
+print("--------------------------------")
+print(f"Accuracy :  {accuracy_50:.4f}")
+print(f"Precision:  {precision_50:.4f}")
+print(f"Recall   :  {recall_50:.4f}")
+print(f"F1-score :  {f1_50:.4f}")
+print("\nConfusion Matrix:")
+print(cm_50)
+threshold_70 = 0.70
+y_pred_70 = (y_prob >= threshold_70).astype(int)
+accuracy_70 = accuracy_score(y_test, y_pred_70)
+precision_70 = precision_score(y_test, y_pred_70)
+recall_70 = recall_score(y_test, y_pred_70)
+f1_70 = f1_score(y_test, y_pred_70)
+cm_70 = confusion_matrix(y_test, y_pred_70)
+print("Results at Threshold = 0.70")
+print("--------------------------------")
+print(f"Accuracy :  {accuracy_70:.4f}")
+print(f"Precision:  {precision_70:.4f}")
+print(f"Recall   :  {recall_70:.4f}")
+print(f"F1-score :  {f1_70:.4f}")
+Out[30]: ▾ LogisticRegression ? i
+Parameters
+Fitted attributes
+In [31]:
+In [32]:
+In [33]:
+print("\nConfusion Matrix:")
+print(cm_70)
+
+
+ KNN — Student Performance Classification
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, f1_score, classification_repo
+df = pd.read_csv("student_performance_classification.csv")
+df.head()
+X = df.drop(columns=["performance_category"])
+y = df["performance_category"]
+print("Features:")
+print(X.head())
+Out[42]:
+In [ ]:
+In [1]:
+In [7]:
+Out[7]:
+In [9]:
+print("\nTarget:")
+print(y.head())
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.20,
+    random_state=42,
+    stratify=y
+)
+print("Training data:", X_train.shape)
+print("Testing data:", X_test.shape)
+Training data: (520, 5)
+Testing data: (130, 5)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+k_values = [1, 3, 5, 9, 15]
+results = []
+for k in k_values:
+    knn = KNeighborsClassifier(n_neighbors=k)
+    
+    knn.fit(X_train_scaled, y_train)
+    
+    y_pred = knn.predict(X_test_scaled)
+    
+    accuracy = accuracy_score(y_test, y_pred)
+ f1 = f1_score(
+        y_test,
+        y_pred,
+        average="weighted"
+    )
+    
+    results.append({
+        "K": k,
+        "Accuracy": accuracy,
+        "F1-Score": f1
+    })
+results_df = pd.DataFrame(results)
+results_df
+— Decision Tree — Loan Approval
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import (
+    accuracy_score,
+    confusion_matrix,
+    precision_score,
+    recall_score,
+    f1_score,
+    classification_report
+)
+df = pd.read_csv("loan_applications.csv")
+df.head()
+X = df[
+    [
+        "age",
+        "annual_income",
+        "credit_score",
+        "employment_years",
+        "existing_loans",
+        "debt_to_income_ratio",
+        "previous_default",
+        "loan_amount"
+In [ ]:
+In [32]:
+In [33]:
+Out[33]:
+In [40]:
+    ]
+].copy()
+y = df["loan_status"]
+from sklearn.preprocessing import LabelEncoder
+encoder = LabelEncoder()
+X["previous_default"] = encoder.fit_transform(
+    X["previous_default"]
+)
+from sklearn.preprocessing import LabelEncoder
+encoder = LabelEncoder()
+X["previous_default"] = encoder.fit_transform(
+    X["previous_default"]
+)
+target_encoder = LabelEncoder()
+y = target_encoder.fit_transform(y)
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.20,
+    random_state=42,
+    stratify=y
+)
+depths = [2, 4, 6, None]
+results = []
+for depth in depths:
+    model = DecisionTreeClassifier(
+        max_depth=depth,
+        random_state=42
+    )
+    model.fit(X_train, y_train)
+    train_prediction = model.predict(X_train)
+    test_prediction = model.predict(X_test)
+    train_accuracy = accuracy_score(
+        y_train,
+        train_prediction
+    )
+    test_accuracy = accuracy_score(
+        y_test,
+        test_prediction
+    )
+    results.append({
+In [44]:
+In [45]:
+In [46]:
+        "max_depth": depth,
+        "Training Accuracy": train_accuracy * 100,
+        "Testing Accuracy": test_accuracy * 100
+    })
+results_df = pd.DataFrame(results)
+results_df.round(2)
+best_row = results_df.loc[
+    results_df["Testing Accuracy"].idxmax()
+]
+best_depth = best_row["max_depth"]
+print("Best max_depth:", best_depth)
+print(
+    "Best Testing Accuracy:",
+    round(best_row["Testing Accuracy"], 2),
+    "%"
+)
+Best max_depth: 4.0
+Best Testing Accuracy: 80.48 %
+best_row = results_df.loc[
+    results_df["Testing Accuracy"].idxmax()
+]
+best_depth = best_row["max_depth"]
+print("Best max_depth:", best_depth)
+print("Best Testing Accuracy:",
+      round(best_row["Testing Accuracy"], 2), "%")
+# Train final Decision Tree model
+final_model = DecisionTreeClassifier(
+    max_depth=best_depth,
+    random_state=42
+)
+final_model.fit(X_train, y_train)
+final_pred = final_model.predict(X_test)
+final_accuracy = accuracy_score(y_test, final_pred)
+Out[46]:
+In [38]:
+In [48]:
+In [51]:
+print("Final Testing Accuracy:", round(final_accuracy * 100, 2), "%")
+Final Testing Accuracy: 80.48 %
+precision = precision_score(
+    y_test, final_pred, average="weighted"
+)
+recall = recall_score(
+    y_test, final_pred, average="weighted"
+)
+f1 = f1_score(
+    y_test, final_pred, average="weighted"
+)
+print("Precision:", round(precision, 2))
+print("Recall:", round(recall, 2))
+print("F1 Score:", round(f1, 2))
+Precision: 0.81
+Recall: 0.8
+F1 Score: 0.81
+results_df["Accuracy Gap"] = (
+    results_df["Training Accuracy"] - results_df["Testing Accuracy"]
+)
+results_df.round(2)
+ Random Forest — Customer Chur
+import pandas as pd
+import time
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import accuracy_score, f1_score
+df = pd.read_csv("telecom_customer_churn.csv")
+df.head()
+features = [
+    "tenure_months",
+    "monthly_bill",
+    "support_calls",
+    "internet_usage_gb",
+    "contract_months",
+    "late_payment_count",
+    "service_complaints",
+    "customer_satisfaction"
+]
+X = df[features]
+y = df["churn"]
+label_encoder = LabelEncoder()
+y = label_encoder.fit_transform(y)
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.20,
+    random_state=42,
+    stratify=y
+)
+estimators = [10, 50, 100, 200]
+results = []
+In [1]:
+In [2]:
+Out[2]:
+In [3]:
+In [4]:
+In [5]:
+In [7]:
+for n in estimators:
+    
+    model = RandomForestClassifier(
+        n_estimators=n,
+        random_state=42
+    )
+    
+    start_time = time.time()
+    
+    model.fit(X_train, y_train)
+    
+    training_time = time.time() - start_time
+    
+    y_pred = model.predict(X_test)
+    
+    accuracy = accuracy_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred)
+    
+    results.append({
+        "n_estimators": n,
+        "Accuracy": accuracy,
+        "F1 Score": f1,
+        "Training Time (seconds)": training_time
+    })
+results_df = pd.DataFrame(results)
+results_df.round(4)
+comparison = pd.DataFrame({
+    "Model": [
+        "Linear Regression",
+        "Random Forest Regression"
+    ],
+    "MAE": [
+        linear_mae,
+        rf_mae
+    ],
+    "RMSE": [
+        linear_rmse,
+        rf_rmse
+    ],
+    "R²": [
+        linear_r2,
+        rf_r2
+In [20]:
+In [21]:
+In [22]:
+    ]
+})
+comparison.round(4)
+Naive Bayes — Spam Detection
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score, precision_score, recall_score
+df = pd.read_csv("email_classification_records.csv")
+df.head()
+X = df["message_text"]
+y = df["label"]
+y = y.map({
+    "Not Spam": 0,
+    "Spam": 1
+})
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.20,
+    random_state=42,
+    stratify=y
+)
+vectorizer_without_stopwords = CountVectorizer()
+X_train_without = vectorizer_without_stopwords.fit_transform(X_train)
+X_test_without = vectorizer_without_stopwords.transform(X_test)
+print("Vocabulary size:", len(vectorizer_without_stopwords.vocabulary_))
+Vocabulary size: 450
+nb_without = MultinomialNB()
+nb_without.fit(X_train_without, y_train)
+pred_without = nb_without.predict(X_test_without)
+accuracy_without = accuracy_score(y_test, pred_without)
+precision_without = precision_score(y_test, pred_without)
+recall_without = recall_score(y_test, pred_without)
+f1_without = f1_score(y_test, pred_without)
+vectorizer_with_stopwords = CountVectorizer(
+    stop_words="english"
+)
+X_train_with = vectorizer_with_stopwords.fit_transform(X_train)
+X_test_with = vectorizer_with_stopwords.transform(X_test)
+print("Vocabulary size:", len(vectorizer_with_stopwords.vocabulary_))
+nb_with = MultinomialNB()
+nb_with.fit(X_train_with, y_train)
+pred_with = nb_with.predict(X_test_with)
+accuracy_with = accuracy_score(y_test, pred_with)
+precision_with = precision_score(y_test, pred_with)
+recall_with = recall_score(y_test, pred_with)
+f1_with = f1_score(y_test, pred_with)
+comparison_percentage = comparison.copy()
+metrics = [
+    "Accuracy",
+    "Precision",
+    "Recall",
+    "F1 Score"
+]
+comparison_percentage[metrics] = (
+    comparison_percentage[metrics] * 100
+)
+comparison_percentage.round(2)
+K-Means — Customer Segmentation
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+In [47]:
+In [48]:
+In [49]:
+In [ ]:
+In [50]:
+df = pd.read_csv("customer_behavior_dataset.csv")
+df.head()
+features = [
+    "annual_income",
+    "annual_spending",
+    "purchase_frequency",
+    "average_order_value",
+    "website_visits"
+]
+X = df[features]
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+k_values = [2, 3, 4, 5, 6]
+results = []
+for k in k_values:
+    
+    kmeans = KMeans(
+        n_clusters=k,
+        random_state=42,
+        n_init=10
+    )
+    
+    labels = kmeans.fit_predict(X_scaled)
+    
+    silhouette = silhouette_score(X_scaled, labels)
+    
+    results.append({
+        "K": k,
+        "Silhouette Score": silhouette
+    })
+results_df = pd.DataFrame(results)
+results_df.round(4)
+best_row = results_df.loc[
+results_df["Silhouette Score"].idxmax()
+]
+best_k = int(best_row["K"])
+print("Best K:", best_k)
+print("Best Silhouette Score:", round(best_row["Silhouette Score"], 4))
+Best K: 3
+Best Silhouette Score: 0.5675
+In [58]:
+plt.figure(figsize=(8, 5))
+plt.plot(
+results_df["K"],
+results_df["Silhouette Score"],
+marker="o"
+)
+plt.xlabel("Number of Clusters (K)")
+plt.ylabel("Silhouette Score")
+plt.title("Silhouette Score for Different K Values")
+plt.show()
+
+final_kmeans = KMeans(
+n_clusters=best_k,
+random_state=42,
+n_init=10
+)
+df["cluster"] = final_kmeans.fit_predict(X_scaled)
+plt.figure(figsize=(8, 5))
+plt.scatter(
+df["annual_income"],
+df["annual_spending"],
+c=df["cluster"]
+)
+plt.xlabel("Annual Income")
+plt.ylabel("Annual Spending")
+plt.title("Customer Segmentation using K-Means")
+plt.show()
+
+ Employee Salary Prediction
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_s
+df = pd.read_csv("employee_salary_dataset.csv")
+df.head()
+print("Dataset Shape:", df.shape)
+df.info()
+plt.figure(figsize=(8, 5))
+plt.hist(df["annual_salary"], bins=30)
+plt.xlabel("Annual Salary")
+plt.ylabel("Number of Employees")
+plt.title("Distribution of Annual Salary")
+plt.show()
+features = [
+"years_of_experience",
+"education_level",
+"technical_skills_count",
+"number_of_projects",
+"designation_level",
+"performance_score"
+]
+X = df[features]
+y = df["annual_salary"]
+categorical_features = [
+    "education_level",
+    "designation_level"
+]
+numerical_features = [
+    "years_of_experience",
+    "technical_skills_count",
+    "number_of_projects",
+    "performance_score"
+]
+preprocessor = ColumnTransformer(
+    transformers=[
+        (
+            "num",
+            SimpleImputer(strategy="median"),
+            numerical_features
+        ),
+        (
+            "cat",
+            Pipeline([
+                ("imputer", SimpleImputer(strategy="most_frequent")),
+                ("encoder", OneHotEncoder(handle_unknown="ignore"))
+            ]),
+            categorical_features
+        )
+    ]
+)
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.20,
+    random_state=42
+)
+print("Training records:", len(X_train))
+print("Testing records:", len(X_test))
+Training records: 400
+Testing records: 100
+linear_model = Pipeline([
+    ("preprocessor", preprocessor),
+    ("model", LinearRegression())
+])
+linear_model.fit(X_train, y_train)
+linear_pred = linear_model.predict(X_test)
+forest_model = Pipeline([
+    ("preprocessor", preprocessor),
+    ("model", RandomForestRegressor(
+        n_estimators=100,
+In [6]:
+In [7]:
+In [8]:
+In [9]:
+        random_state=42
+    ))
+])
+forest_model.fit(X_train, y_train)
+forest_pred = forest_model.predict(X_test)
+results = []
+predictions = {
+    "Linear Regression": linear_pred,
+    "Random Forest": forest_pred
+}
+for name, pred in predictions.items():
+    results.append({
+        "Model": name,
+        "MAE": mean_absolute_error(y_test, pred),
+        "RMSE": mean_squared_error(y_test, pred) ** 0.5,
+        "R2 Score": r2_score(y_test, pred)
+    })
+results_df = pd.DataFrame(results)
+results_df.round(2)
+new_employee = pd.DataFrame([{
+    "years_of_experience": 5,
+    "education_level": "Master",
+    "technical_skills_count": 8,
+    "number_of_projects": 6,
+    "designation_level": "Mid",
+    "performance_score": 8
+}])
+predicted_salary = forest_model.predict(new_employee)
+print("Predicted Annual Salary:", round(predicted_salary[0], 2))
+

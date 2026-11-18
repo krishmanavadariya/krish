@@ -1,0 +1,197 @@
+Step 1 — Load CSV files
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+movies = pd.read_csv("Movies.csv")
+shows = pd.read_csv("Shows.csv")
+bookings = pd.read_csv("Bookings.csv")
+
+Step 2 — See first 5 rows
+print(movies.head())
+print(shows.head())
+print(bookings.head())
+
+
+Step 3 — Check number of rows and columns
+print(movies.shape)
+print(shows.shape)
+print(bookings.shape)
+
+
+Step 4 — Check column names
+print(movies.columns)
+print(shows.columns)
+print(bookings.columns)
+
+
+Step 5 — Check data types
+print(movies.info())
+print(shows.info())
+print(bookings.info())
+
+
+Step 6 — Statistical information
+print(movies.describe())
+print(shows.describe())
+print(bookings.describe())
+
+
+Step 7 — Missing values
+print(movies.isnull().sum())
+print(shows.isnull().sum())
+print(bookings.isnull().sum())
+
+
+Step 8 — Duplicate records
+print(movies.duplicated().sum())
+print(shows.duplicated().sum())
+print(bookings.duplicated().sum())
+
+
+
+Step 9 — Unique values
+
+For example:
+
+print(movies["Genre"].unique())
+print(shows["City"].unique())
+print(bookings["Payment_Mode"].unique())
+
+
+
+
+Fill missing values
+
+For numerical column:
+movies["Rating"] = movies["Rating"].fillna(movies["Rating"].mean())
+
+For categorical column:
+movies["Genre"] = movies["Genre"].fillna("Unknown")
+
+
+
+Remove extra spaces
+
+Very useful in practical exams:
+movies["Genre"] = movies["Genre"].str.strip()
+shows["City"] = shows["City"].str.strip()
+bookings["Payment_Mode"] = bookings["Payment_Mode"].str.strip()
+
+
+Convert date
+
+If you have a date column:
+shows["Show_Date"] = pd.to_datetime(shows["Show_Date"])
+
+
+
+Check data types:
+
+print(movies.dtypes)
+print(shows.dtypes)
+print(bookings.dtypes)
+
+Check negative values:
+
+print(bookings[bookings["Ticket_Price"] < 0])
+
+If you have number of tickets:
+
+print(bookings[bookings["Tickets"] < 0])
+
+Check unique categories:
+
+print(movies["Genre"].unique())
+print(shows["City"].unique())
+
+
+
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Load data
+movies = pd.read_csv("Movies.csv")
+shows = pd.read_csv("Shows.csv")
+bookings = pd.read_csv("Bookings.csv")
+
+# Explore
+print(movies.head())
+print(movies.shape)
+print(movies.info())
+print(movies.describe())
+print(movies.isnull().sum())
+print(movies.duplicated().sum())
+
+# Clean
+movies = movies.drop_duplicates()
+shows = shows.drop_duplicates()
+bookings = bookings.drop_duplicates()
+
+movies["Genre"] = movies["Genre"].fillna("Unknown")
+
+shows["Show_Date"] = pd.to_datetime(
+    shows["Show_Date"], errors="coerce"
+)
+
+bookings["Ticket_Price"] = pd.to_numeric(
+    bookings["Ticket_Price"], errors="coerce"
+)
+
+bookings["Ticket_Price"] = bookings["Ticket_Price"].fillna(
+    bookings["Ticket_Price"].median()
+)
+
+# Validate
+print(movies.isnull().sum())
+print(shows.isnull().sum())
+print(bookings.isnull().sum())
+
+print(movies.duplicated().sum())
+print(shows.duplicated().sum())
+print(bookings.duplicated().sum())
+
+# Visualization
+plt.hist(bookings["Ticket_Price"])
+plt.xlabel("Ticket Price")
+plt.ylabel("Frequency")
+plt.title("Ticket Price Distribution")
+plt.show()
+
+movies["Genre"].value_counts().plot(kind="bar")
+plt.xlabel("Genre")
+plt.ylabel("Number of Movies")
+plt.title("Movies by Genre")
+plt.show()
+
+# Export
+movies.to_csv("Movies_Cleaned.csv", index=False)
+shows.to_csv("Shows_Cleaned.csv", index=False)
+bookings.to_csv("Bookings_Cleaned.csv", index=False)
+
+print("Done")
+
+
+| Command               | Meaning             |
+| --------------------- | ------------------- |
+| `pd.read_csv()`       | Load CSV            |
+| `.head()`             | First 5 rows        |
+| `.shape`              | Rows & columns      |
+| `.info()`             | Data types/info     |
+| `.describe()`         | Statistics          |
+| `.isnull().sum()`     | Missing values      |
+| `.duplicated().sum()` | Duplicate count     |
+| `.drop_duplicates()`  | Remove duplicates   |
+| `.fillna()`           | Fill missing values |
+| `.to_csv()`           | Save CSV            |
+
+
+
+
+1. read_csv() → 2. head() → 3. shape → 4. info() → 5. describe() → 6. isnull() → 7. drop_duplicates() → 8. fillna() → 9. Matplotlib → 10. to_csv()
+
+
+
+
